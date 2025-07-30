@@ -37,7 +37,7 @@ Here is a basic example. We have a transactional method service and Hibernate is
 
 Calling this method with ulyp agent enabled is able to provide a full call tree. No code change is required.
 
-![Spring/Hibernate call recorded](https://github.com/0xaa4eb/ulyp/blob/master/images/hibernate.png)
+![Spring/Hibernate call recorded](https://github.com/0xaa4eb/ulyp/blob/master/images/hibernate.gif)
 
 ## Blog posts
 
