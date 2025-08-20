@@ -1,21 +1,28 @@
 plugins {
     id 'java'
-    id 'io.freefair.lombok' version '5.3.0'
-    id "com.github.johnrengelman.shadow" version "2.0.4"
+    id 'io.freefair.lombok' version '8.12.1'
+    id "com.gradleup.shadow" version "8.3.6"
 }
 
 dependencies {
     implementation project(':ulyp-common')
-    compileOnly project(':ulyp-agent-core')
+    implementation project(':ulyp-agent-core')
+
+    /*
+     We are embedding ulyp-agent-core jar file inside ulyp-agent jar file. ulyp-agent-core jar is copied to temp folder
+     and attached to bootstrap class loader on agent startup.
+    */
+    shadow project(':ulyp-agent-core')
     runtimeOnly files('../ulyp-agent-core/build/libs/ulyp-agent-core.jarr')
 
-    compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
-    compileOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.2'
-    compileOnly group: 'org.jetbrains', name: 'annotations', version: '18.0.0'
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
-    testImplementation project(':ulyp-agent-core')
+    shadow group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    shadow group: 'org.slf4j', name: 'slf4j-api', version: '1.7.2'
+    shadow group: 'org.jetbrains', name: 'annotations', version: '18.0.0'
+    shadow group: 'org.projectlombok', name: 'lombok', version: '1.18.28'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.28'
 
+    testImplementation project(':ulyp-common')
+    testImplementation project(':ulyp-agent-core')
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.3'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
@@ -27,7 +34,7 @@ if (project.hasProperty("customByteBuddy")) {
     }
 } else {
     dependencies {
-        implementation group: 'net.bytebuddy', name: 'byte-buddy', version: '1.15.10'
+        implementation group: 'net.bytebuddy', name: 'byte-buddy', version: '1.17.6'
     }
 }
 
@@ -60,16 +67,19 @@ classes {
 
 compileJava {
     options.debug = true
-}
-
-jar {
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+    dependsOn(':ulyp-agent-core:shadowJar')
+    dependsOn(':ulyp-agent-core:copyShadowJar')
 }
 
 shadowJar {
-    dependsOn(':ulyp-agent-core:shadowJar')
+
+    archiveClassifier.set('all')
+    manifest {
+        attributes 'Premain-Class': 'com.ulyp.agent.UlypAgent',
+                'Can-Redefine-Classes': 'true',
+                'Can-Retransform-Classes': 'true'
+    }
+
     dependsOn(':ulyp-agent-core:copyShadowJar')
 
     relocate 'org.agrona', 'shadowed.org.agrona'
@@ -79,7 +89,7 @@ shadowJar {
     relocate 'javax.annotation', 'shadowed.javax.annotation'
     relocate 'net.bytebuddy', 'shadowed.net.bytebuddy'
 
-    archiveName = "${rootProject.name}-agent-${rootProject.version}.jar"
+    archiveFileName = "${rootProject.name}-agent-${rootProject.version}.jar"
 
     mergeServiceFiles()
 
