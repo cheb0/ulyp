@@ -103,6 +103,7 @@ public class RecordedEnterMethodCallSerializer {
 
         ObjectRecord callee = deserializeObject(input, typeResolver);
 
+        //System.out.println("Deserialized Object Record" + callee.getType().getName());
         return RecordedEnterMethodCall.builder()
                 .methodId(methodId)
                 .nanoTime(nanoTime)

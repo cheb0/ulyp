@@ -11,6 +11,7 @@ import com.ulyp.ui.elements.controls.ErrorModalView
 import com.ulyp.ui.elements.misc.ExceptionAsTextView
 import com.ulyp.ui.elements.recording.tree.FileRecordingTabPane
 import com.ulyp.ui.elements.recording.tree.FileRecordingsTabName
+import com.ulyp.ui.export.RecordingJsonExporter
 import com.ulyp.ui.reader.ReaderRegistry
 import com.ulyp.ui.settings.Settings
 import com.ulyp.ui.util.FxThreadExecutor
@@ -133,12 +134,19 @@ class PrimaryView(
     }
 
     fun openRecordingFile() {
-        val file: File = fileChooser.get() ?: return
+        val file: File = fileChooser.get() ?: return // Retrieves the file selected by the user
+
+        // `readerRegistry` processes the file and creates a `CallRecordTree` object containing metadata and recording data
         val callRecordTree: CallRecordTree = readerRegistry.newCallRecordTree(file) ?: return
 
+        // Creates or retrieves a tab for the file
         val fileRecordingsTab = fileRecordingTabPane.getOrCreateProcessTab(
             FileRecordingsTabName(file, callRecordTree.processMetadata)
         )
+
+        /* Cleanup action is registered
+         * When the tab is closed, the `CallRecordTree` is disposed of, and its resources are released
+         */
         fileRecordingsTab.setOnClosed {
             readerRegistry.dispose(callRecordTree)
             callRecordTree.close()
@@ -159,12 +167,28 @@ class PrimaryView(
         loadingProgressBar.prefWidth = 200.0
         fileTabPaneAnchorPane.children.add(loadingProgressBar)
 
+        /* Subscribe to `CallRecordTree` object Updates:
+        * `RecordingListener` is registered to handle updates from the `CallRecordTree`. It listens for:
+        * Recording Updates: Updates the tab with new recording data
+        * Progress Updates: Updates the progress bar every 5% increment
+        */
         callRecordTree.subscribe(
             object : RecordingListener {
                 var prevProgress = 0.0
 
                 override fun onRecordingUpdated(recording: Recording) {
                     fileRecordingsTab.updateOrCreateRecordingTab(callRecordTree.processMetadata, recording)
+
+                    // NEW: export JSON next to the opened .dat file (or choose another directory)
+//                    val outDir = file.parentFile ?: File(".")
+//                    val outFile = File(outDir, "recording-${recording.id}.json") // Creates a JSON file for each recording
+//                    RecordingJsonExporter.export(recording, outFile)
+
+                    callRecordTree.completeFuture.thenRun {
+                        val baseDir = file.parentFile ?: File(".")
+                        val combined = File(baseDir, "all-recordings.json")
+                        RecordingJsonExporter.exportAll(callRecordTree, combined)
+                    }
                 }
 
                 override fun onProgressUpdated(progress: Double) {
@@ -179,9 +203,10 @@ class PrimaryView(
             }
         )
 
+        // Handle Completion or Errors
         callRecordTree.completeFuture.exceptionally {
             FxThreadExecutor.execute {
-                loadingProgressBar.visibleProperty().set(false)
+                loadingProgressBar.visibleProperty().set(false)  // Progress bar is removed from the UI
                 fileTabPaneAnchorPane.children.remove(loadingProgressBar)
                 val errorPopup = applicationContext.getBean(
                         ErrorModalView::class.java,
