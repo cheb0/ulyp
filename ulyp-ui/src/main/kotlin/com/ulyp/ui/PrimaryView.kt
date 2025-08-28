@@ -11,7 +11,7 @@ import com.ulyp.ui.elements.controls.ErrorModalView
 import com.ulyp.ui.elements.misc.ExceptionAsTextView
 import com.ulyp.ui.elements.recording.tree.FileRecordingTabPane
 import com.ulyp.ui.elements.recording.tree.FileRecordingsTabName
-import com.ulyp.ui.export.RecordingJsonExporter
+import com.ulyp.ui.export.RecordingMultipleJsonExporter
 import com.ulyp.ui.reader.ReaderRegistry
 import com.ulyp.ui.settings.Settings
 import com.ulyp.ui.util.FxThreadExecutor
@@ -179,16 +179,17 @@ class PrimaryView(
                 override fun onRecordingUpdated(recording: Recording) {
                     fileRecordingsTab.updateOrCreateRecordingTab(callRecordTree.processMetadata, recording)
 
-                    // NEW: export JSON next to the opened .dat file (or choose another directory)
-//                    val outDir = file.parentFile ?: File(".")
-//                    val outFile = File(outDir, "recording-${recording.id}.json") // Creates a JSON file for each recording
-//                    RecordingJsonExporter.export(recording, outFile)
+                    // Export JSON next to the opened .dat file (or choose another directory)
+                    val outDir = file.parentFile ?: File(".")
+                    val outFile = File(outDir, "recording-${recording.id}.json") // Creates a JSON file for each recording
+                    RecordingMultipleJsonExporter.export(recording, outFile)
 
-                    callRecordTree.completeFuture.thenRun {
-                        val baseDir = file.parentFile ?: File(".")
-                        val combined = File(baseDir, "all-recordings.json")
-                        RecordingJsonExporter.exportAll(callRecordTree, combined)
-                    }
+                    //  Export ALL recordings to a single file
+//                    callRecordTree.completeFuture.thenRun {
+//                        val baseDir = file.parentFile ?: File(".")
+//                        val combined = File(baseDir, "all-recordings.json")
+//                        RecordingJsonConverter.exportAll(callRecordTree, combined)
+//                    }
                 }
 
                 override fun onProgressUpdated(progress: Double) {
