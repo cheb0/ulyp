@@ -14,6 +14,7 @@ import com.ulyp.ui.elements.recording.tree.FileRecordingsTabName
 import com.ulyp.ui.reader.ReaderRegistry
 import com.ulyp.ui.settings.Settings
 import com.ulyp.ui.util.FxThreadExecutor
+import com.ulyp.ui.export.RecordingJsonExporter
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
@@ -165,6 +166,11 @@ class PrimaryView(
 
                 override fun onRecordingUpdated(recording: Recording) {
                     fileRecordingsTab.updateOrCreateRecordingTab(callRecordTree.processMetadata, recording)
+
+                    // Export dat to JSON file
+                    val outDir = file.parentFile ?: File(".")
+                    val outFile = File(outDir, "recording-${recording.id}.json")
+                    RecordingJsonExporter.export(recording, outFile)
                 }
 
                 override fun onProgressUpdated(progress: Double) {
