@@ -2,16 +2,16 @@
 
 <div align="center">
 
-  <a href="https://github.com/cheburitos/ulyp/blob/master/LICENSE">
+  <a href="https://github.com/cheb0/ulyp/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/price-FREE-0098f7.svg" alt="Price">
   </a>
-  <a href="https://circleci.com/gh/cheburitos/ulyp/tree/master">
-    <img src="https://circleci.com/gh/cheburitos/ulyp/tree/master.svg?style=svg" alt="Build Status">
+  <a href="https://circleci.com/gh/cheb0/ulyp/tree/master">
+    <img src="https://circleci.com/gh/cheb0/ulyp/tree/master.svg?style=svg" alt="Build Status">
   </a>
   <a href="https://sonarcloud.io/dashboard?id=0xaa4eb_ulyp">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=0xaa4eb_ulyp&metric=alert_status" alt="Quality Gate Status">
   </a>
-  <img src="https://raw.githubusercontent.com/cheburitos/ulyp/project-badges/loc-badge.svg" alt="Lines of Code">
+  <img src="https://raw.githubusercontent.com/cheb0/ulyp/project-badges/loc-badge.svg" alt="Lines of Code">
 
 </div>
 
@@ -37,13 +37,13 @@ Here is a basic example. We have a transactional method service and Hibernate is
 
 Calling this method with ulyp agent enabled is able to provide a full call tree. No code change is required.
 
-![Spring/Hibernate call recorded](https://github.com/0xaa4eb/ulyp/blob/master/images/hibernate.gif)
+![Spring/Hibernate call recorded](https://github.com/cheb0/ulyp/blob/master/images/hibernate.gif)
 
 ## Blog posts
 
 The underlying rationale for the development, technical design, as well as some use cases are outlined in the following blog posts:
 * [Ulyp: Recording Java code execution for faster debugging (ENG)](https://dzone.com/articles/ulyp-recording-java-execution-flow-for-faster-debugging)
-* [Reverse engineer Spring Web in 5 minutes using a recording debugger (ENG)](https://0xaa4eb.github.io/2024/12/14/reverse-engineer-spring-boot.html)
+* [Reverse engineer Spring Web in 5 minutes using a recording debugger (ENG)](https://cheb0.github.io/2024/12/14/reverse-engineer-spring-boot.html)
 
 ## How to use
 
