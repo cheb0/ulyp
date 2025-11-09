@@ -133,6 +133,64 @@ class PrimaryView(
         popup.show()
     }
 
+    /**
+     * Exports currently recordings to JSON files to same directory where recording file resides
+     */
+    fun exportToJson() {
+        val file: File = fileChooser.get() ?: return
+        val callRecordTree: CallRecordTree = readerRegistry.newCallRecordTree(file) ?: return
+
+        val loadingProgressBar = ProgressBar()
+        loadingProgressBar.prefWidth = 200.0
+        fileTabPaneAnchorPane.children.add(loadingProgressBar)
+
+        val recordings = mutableMapOf<Int, Recording>()
+
+        // Collect all recordings from the file (latest states)
+        callRecordTree.subscribe(
+            object : RecordingListener {
+                var prevProgress = 0.0
+
+                override fun onRecordingUpdated(recording: Recording) {
+                    recordings[recording.id] = recording
+                }
+
+                override fun onProgressUpdated(progress: Double) {
+                    // update every 5 percent at most
+                    if (progress > prevProgress + 0.05) {
+                        Platform.runLater {
+                            loadingProgressBar.progress = progress
+                        }
+                        prevProgress = progress
+                    }
+                }
+            }
+        )
+
+        callRecordTree.completeFuture.exceptionally {
+            FxThreadExecutor.execute {
+                val errorPopup = applicationContext.getBean(
+                    ErrorModalView::class.java,
+                    applicationContext.getBean(SceneRegistry::class.java),
+                    "Stopped reading recording file $file with error: " + it.message,
+                    ExceptionAsTextView(it)
+                )
+                errorPopup.show()
+            }
+            null
+        }.thenAccept {
+            FxThreadExecutor.execute {
+                loadingProgressBar.visibleProperty().set(false)
+                fileTabPaneAnchorPane.children.remove(loadingProgressBar)
+            }
+            recordings.forEach { _, recording ->
+                val outDir = file.parentFile ?: File(".")
+                val outFile = File(outDir, "${file.name}-recording-${recording.id}.json")
+                RecordingJsonExporter.export(recording, outFile)
+            }
+        }
+    }
+
     fun openRecordingFile() {
         val file: File = fileChooser.get() ?: return
         val callRecordTree: CallRecordTree = readerRegistry.newCallRecordTree(file) ?: return
@@ -166,11 +224,6 @@ class PrimaryView(
 
                 override fun onRecordingUpdated(recording: Recording) {
                     fileRecordingsTab.updateOrCreateRecordingTab(callRecordTree.processMetadata, recording)
-
-                    // Export dat to JSON file
-                    val outDir = file.parentFile ?: File(".")
-                    val outFile = File(outDir, "recording-${recording.id}.json")
-                    RecordingJsonExporter.export(recording, outFile)
                 }
 
                 override fun onProgressUpdated(progress: Double) {
@@ -187,8 +240,6 @@ class PrimaryView(
 
         callRecordTree.completeFuture.exceptionally {
             FxThreadExecutor.execute {
-                loadingProgressBar.visibleProperty().set(false)
-                fileTabPaneAnchorPane.children.remove(loadingProgressBar)
                 val errorPopup = applicationContext.getBean(
                         ErrorModalView::class.java,
                         applicationContext.getBean(SceneRegistry::class.java),
@@ -199,8 +250,10 @@ class PrimaryView(
             }
             null
         }.thenAccept {
-            loadingProgressBar.visibleProperty().set(false)
-            fileTabPaneAnchorPane.children.remove(loadingProgressBar)
+            FxThreadExecutor.execute {
+                loadingProgressBar.visibleProperty().set(false)
+                fileTabPaneAnchorPane.children.remove(loadingProgressBar)
+            }
         }
     }
 }
