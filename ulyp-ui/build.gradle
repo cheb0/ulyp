@@ -54,6 +54,8 @@ dependencies {
     implementation group: 'org.apache.logging.log4j', name: 'log4j', version: '2.24.2'
     implementation group: 'org.jetbrains', name: 'annotations', version: '18.0.0'
 
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.19.2'
+
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.3'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
