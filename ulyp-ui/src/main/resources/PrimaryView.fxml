@@ -15,6 +15,7 @@
                         <MenuItem mnemonicParsing="false" onAction="#openRecordingFile" text="Open recording file"/>
                         <MenuItem mnemonicParsing="false" onAction="#showSettings" text="Settings"/>
                         <MenuItem mnemonicParsing="false" onAction="#exit" text="Quit Ulyp"/>
+                        <MenuItem text="Export to JSON" onAction="#exportToJson"/>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Recordings">

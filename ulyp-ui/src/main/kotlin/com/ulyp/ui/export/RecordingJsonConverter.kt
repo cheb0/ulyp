@@ -73,7 +73,7 @@ object RecordingJsonConverter {
         val rootDto: NodeJson = toNodeJson(rootCall)
 
         // -------- Build the top-level DTO --------
-        val recording = RecordingJson(
+        val recordingJson = RecordingJson(
             id = id,
             threadName = threadName,
             startTimeEpochMs = startEpochMs,
@@ -83,7 +83,7 @@ object RecordingJsonConverter {
         )
 
         println("Converted recording $id with $totalCalls calls to JSON DTO")
-        return recording
+        return recordingJson
     }
 
 

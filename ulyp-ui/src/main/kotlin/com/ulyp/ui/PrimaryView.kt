@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationContext
 import java.io.File
 import java.net.URL
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
 import kotlin.system.exitProcess
 
@@ -178,18 +179,6 @@ class PrimaryView(
 
                 override fun onRecordingUpdated(recording: Recording) {
                     fileRecordingsTab.updateOrCreateRecordingTab(callRecordTree.processMetadata, recording)
-
-                    // Export JSON next to the opened .dat file (or choose another directory)
-                    val outDir = file.parentFile ?: File(".")
-                    val outFile = File(outDir, "recording-${recording.id}.json") // Creates a JSON file for each recording
-                    RecordingMultipleJsonExporter.export(recording, outFile)
-
-                    //  Export ALL recordings to a single file
-//                    callRecordTree.completeFuture.thenRun {
-//                        val baseDir = file.parentFile ?: File(".")
-//                        val combined = File(baseDir, "all-recordings.json")
-//                        RecordingJsonConverter.exportAll(callRecordTree, combined)
-//                    }
                 }
 
                 override fun onProgressUpdated(progress: Double) {
@@ -223,4 +212,100 @@ class PrimaryView(
             fileTabPaneAnchorPane.children.remove(loadingProgressBar)
         }
     }
+
+    // Exports recordings from a selected file to JSON format
+    fun exportToJson() {
+        val file: File = fileChooser.get() ?: return
+
+        // Create a new CallRecordTree to read the file in the background (same as openRecordingFile)
+        val callRecordTree: CallRecordTree = readerRegistry.newCallRecordTree(file) ?: return
+
+        val rocksdbAvailable = RocksdbChecker.checkRocksdbAvailable()
+        if (!rocksdbAvailable.value()) {
+            val errorPopup = applicationContext.getBean(
+                ErrorModalView::class.java,
+                applicationContext.getBean(SceneRegistry::class.java),
+                "Rocksdb is not available on your platform, in-memory index will be used. Please note this may cause OOM on large recordings",
+                ExceptionAsTextView(rocksdbAvailable.err!!)
+            )
+            errorPopup.show()
+        }
+
+        val loadingProgressBar = ProgressBar().apply {
+            prefWidth = 200.0
+        }
+        fileTabPaneAnchorPane.children.add(loadingProgressBar)
+
+        // onRecordingUpdated can be called multiple times per recording; capture the latest snapshot per id
+        val recordingsById = ConcurrentHashMap<Int, Recording>()
+
+        callRecordTree.subscribe(
+            object : RecordingListener {
+                var prevProgress = 0.0
+
+                override fun onRecordingUpdated(recording: Recording) {
+                    recordingsById[recording.id] = recording
+                }
+
+                override fun onProgressUpdated(progress: Double) {
+                    // update every 5 percent at most
+                    if (progress > prevProgress + 0.05) {
+                        Platform.runLater {
+                            loadingProgressBar.progress = progress
+                        }
+                        prevProgress = progress
+                    }
+                }
+            }
+        )
+
+        callRecordTree.completeFuture.whenComplete { _, err ->
+            try {
+                if (err != null) {
+                    FxThreadExecutor.execute {
+                        val errorPopup = applicationContext.getBean(
+                            ErrorModalView::class.java,
+                            applicationContext.getBean(SceneRegistry::class.java),
+                            "Stopped reading recording file $file with error: " + err.message,
+                            ExceptionAsTextView(err)
+                        )
+                        errorPopup.show()
+                    }
+                    return@whenComplete
+                }
+
+                val outDir = file.parentFile ?: File(".")
+                recordingsById.values
+                    .sortedBy { it.id }
+                    .forEach { recording ->
+                        val outFile = File(outDir, "recording-${recording.id}.json")
+                        println("Exporting recording ${recording.id} to JSON file: ${outFile.absolutePath}")
+                        RecordingMultipleJsonExporter.export(recording, outFile)
+                    }
+
+            } catch (e: Exception) {
+                FxThreadExecutor.execute {
+                    val errorPopup = applicationContext.getBean(
+                        ErrorModalView::class.java,
+                        applicationContext.getBean(SceneRegistry::class.java),
+                        "Failed to export $file to JSON: " + e.message,
+                        ExceptionAsTextView(e)
+                    )
+                    errorPopup.show()
+                }
+            } finally {
+                FxThreadExecutor.execute {
+                    loadingProgressBar.visibleProperty().set(false)
+                    fileTabPaneAnchorPane.children.remove(loadingProgressBar)
+                }
+                try {
+                    readerRegistry.dispose(callRecordTree)
+                    callRecordTree.close()
+                } catch (_: Exception) {
+                    // best effort cleanup
+                }
+            }
+        }
+    }
+
 }
