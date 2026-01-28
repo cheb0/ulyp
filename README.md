@@ -1,25 +1,49 @@
-[![Price](https://img.shields.io/badge/price-FREE-0098f7.svg)](https://github.com/0xaa4eb/ulyp/blob/master/LICENSE)
-[![Build Status](https://circleci.com/gh/0xaa4eb/ulyp/tree/master.svg?style=svg)](https://circleci.com/gh/0xaa4eb/ulyp/tree/master)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=0xaa4eb_ulyp&metric=alert_status)](https://sonarcloud.io/dashboard?id=0xaa4eb_ulyp)
-[![Maintainability](https://api.codeclimate.com/v1/badges/e76192efb9583aca1170/maintainability)](https://codeclimate.com/github/0xaa4eb/ulyp/maintainability)
-![lines of code](https://raw.githubusercontent.com/0xaa4eb/ulyp/project-badges/loc-badge.svg)
+<h2 align="center">Ulyp - a tracing debugger for Java/Kotlin</h2>
+
+<div align="center">
+
+  <a href="https://github.com/cheb0/ulyp/blob/master/LICENSE">
+    <img src="https://img.shields.io/badge/price-FREE-0098f7.svg" alt="Price">
+  </a>
+  <a href="https://circleci.com/gh/cheb0/ulyp/tree/master">
+    <img src="https://circleci.com/gh/cheb0/ulyp/tree/master.svg?style=svg" alt="Build Status">
+  </a>
+  <a href="https://sonarcloud.io/dashboard?id=0xaa4eb_ulyp">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=0xaa4eb_ulyp&metric=alert_status" alt="Quality Gate Status">
+  </a>
+  <img src="https://raw.githubusercontent.com/cheb0/ulyp/project-badges/loc-badge.svg" alt="Lines of Code">
+
+</div>
 
 ## TL;DR
 
 Turn your software inside out. The tool records everything you app does, and you then can analyze the execution flow.
+Bytecode instrumentation is handled by [byte-buddy](https://github.com/raphw/byte-buddy), UI is built on JavaFX.
 
-Here is the basic example of recorded execution for Hibernate framework
+Here is a basic example. We have a transactional method service and Hibernate is used as a JPA provider. 
 
     ```
+    @Service
     @Transactional
-    public void save(Person person) {
-        personRepository.save(person);
+    public class PersonStoreService {
+        @Autowired
+        private PersonRepository repository;
+    
+        public void save(Person person) {
+            repository.save(person);
+        }
     }
     ```
 
-translates to this:
+Calling this method with ulyp agent enabled is able to provide a full call tree. No code change is required.
 
-![Hibernate call recorded](https://github.com/0xaa4eb/ulyp/blob/master/images/hibernate.png)
+![Spring/Hibernate call recorded](https://github.com/cheb0/ulyp/blob/master/images/hibernate.gif)
+
+## Blog posts
+
+The underlying rationale for the development, technical design, as well as some use cases are outlined in the following blog posts:
+* [Ulyp: Recording Java code execution for faster debugging (ENG)](https://dzone.com/articles/ulyp-recording-java-execution-flow-for-faster-debugging)
+* [Reverse engineer Spring Web in 5 minutes using a recording debugger (ENG)](https://cheb0.github.io/2024/12/14/reverse-engineer-spring-boot.html)
 
 ## How to use
 

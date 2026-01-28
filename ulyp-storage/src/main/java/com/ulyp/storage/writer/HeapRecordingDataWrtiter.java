@@ -22,7 +22,7 @@ public class HeapRecordingDataWrtiter implements RecordingDataWriter {
     private final InMemoryRepository<Integer, Type> types = new InMemoryRepository<>();
     private final List<Method> methods = new ArrayList<>();
     @Getter
-    private final List<RecordedMethodCall> callRecords = new ArrayList<>();
+    private final List<MethodCall> callRecords = new ArrayList<>();
 
     @Override
     public void reset(ResetRequest resetRequest) throws StorageException {

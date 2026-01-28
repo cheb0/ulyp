@@ -5,7 +5,7 @@ import com.ulyp.agent.policy.AlwaysEnabledRecordingPolicy;
 import com.ulyp.agent.queue.RecordingEventQueue;
 import com.ulyp.core.Method;
 import com.ulyp.core.MethodRepository;
-import com.ulyp.core.RecordedExitMethodCall;
+import com.ulyp.core.ExitMethodCall;
 import com.ulyp.core.TypeResolver;
 import com.ulyp.core.metrics.NullMetrics;
 import com.ulyp.core.util.ReflectionBasedMethodResolver;
@@ -101,8 +101,8 @@ class RecorderTest {
         // only the callId1 calls are recorded
         assertEquals(new HashSet<>(Collections.singletonList((int) callId1)), storage.getCallRecords()
             .stream()
-            .filter(call -> call instanceof RecordedExitMethodCall)
-            .map(call -> (int) ((RecordedExitMethodCall) call).getCallId())
+            .filter(call -> call instanceof ExitMethodCall)
+            .map(call -> (int) ((ExitMethodCall) call).getCallId())
             .collect(Collectors.toSet()));
     }
 

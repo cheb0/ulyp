@@ -1,8 +1,8 @@
 package com.ulyp.storage.search;
 
-import com.ulyp.core.RecordedEnterMethodCall;
-import com.ulyp.core.RecordedExitMethodCall;
-import com.ulyp.core.RecordedMethodCall;
+import com.ulyp.core.EnterMethodCall;
+import com.ulyp.core.ExitMethodCall;
+import com.ulyp.core.MethodCall;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 public class StubSearchResultListener implements SearchResultListener {
 
-    private final List<RecordedMethodCall> matchedCalls = new ArrayList<>();
+    private final List<MethodCall> matchedCalls = new ArrayList<>();
 
     @Override
     public void onStart() {
@@ -19,12 +19,12 @@ public class StubSearchResultListener implements SearchResultListener {
     }
 
     @Override
-    public void onMatch(int recordingId, RecordedEnterMethodCall enterMethodCall) {
+    public void onMatch(int recordingId, EnterMethodCall enterMethodCall) {
         matchedCalls.add(enterMethodCall);
     }
 
     @Override
-    public void onMatch(int recordingId, RecordedExitMethodCall exitMethodCall) {
+    public void onMatch(int recordingId, ExitMethodCall exitMethodCall) {
         matchedCalls.add(exitMethodCall);
     }
 

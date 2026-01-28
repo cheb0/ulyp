@@ -1,8 +1,8 @@
 package com.ulyp.storage.reader;
 
 import com.ulyp.core.ProcessMetadata;
-import com.ulyp.core.RecordedEnterMethodCall;
-import com.ulyp.core.RecordedExitMethodCall;
+import com.ulyp.core.EnterMethodCall;
+import com.ulyp.core.ExitMethodCall;
 import com.ulyp.core.Type;
 import com.ulyp.core.repository.ReadableRepository;
 import com.ulyp.storage.StorageException;
@@ -16,9 +16,9 @@ public interface RecordingDataReader extends AutoCloseable {
 
     CompletableFuture<Void> submitReaderJob(RecordingDataReaderJob job);
 
-    RecordedEnterMethodCall readEnterMethodCall(long address, ReadableRepository<Integer, Type> typeRepository);
+    EnterMethodCall readEnterMethodCall(long address, ReadableRepository<Integer, Type> typeRepository);
 
-    RecordedExitMethodCall readExitMethodCall(long address, ReadableRepository<Integer, Type> typeRepository);
+    ExitMethodCall readExitMethodCall(long address, ReadableRepository<Integer, Type> typeRepository);
 
     ProcessMetadata getProcessMetadata();
 

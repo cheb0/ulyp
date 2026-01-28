@@ -37,7 +37,7 @@ class SerializedRecordedMethodCallListTest {
 
             RecordedMethodCalls list = new RecordedMethodCalls(read);
             assertEquals(callsCount * 2, list.size());
-            AddressableItemIterator<RecordedMethodCall> it = list.iterator(new InMemoryRepository<>());
+            AddressableItemIterator<MethodCall> it = list.iterator(new InMemoryRepository<>());
 
             for (int i = 0; i < callsCount * 2; i++) {
                 it.next();
@@ -59,9 +59,9 @@ class SerializedRecordedMethodCallListTest {
         InputBytesList read = out.flip();
         RecordedMethodCalls list = new RecordedMethodCalls(read);
 
-        AddressableItemIterator<RecordedMethodCall> it = list.iterator(new InMemoryRepository<>());
+        AddressableItemIterator<MethodCall> it = list.iterator(new InMemoryRepository<>());
 
-        RecordedEnterMethodCall enterCall = (RecordedEnterMethodCall) it.next();
+        EnterMethodCall enterCall = (EnterMethodCall) it.next();
 
         assertEquals(5, enterCall.getMethodId());
         List<ObjectRecord> arguments = enterCall.getArguments();
@@ -69,7 +69,7 @@ class SerializedRecordedMethodCallListTest {
         IntegralRecord numberRecord = (IntegralRecord) arguments.get(0);
         assertEquals(5, numberRecord.getValue());
 
-        RecordedExitMethodCall exitCall = (RecordedExitMethodCall) it.next();
+        ExitMethodCall exitCall = (ExitMethodCall) it.next();
 
         assertEquals(1, exitCall.getCallId());
     }

@@ -1,15 +1,15 @@
 package com.ulyp.storage.search;
 
-import com.ulyp.core.RecordedEnterMethodCall;
-import com.ulyp.core.RecordedExitMethodCall;
+import com.ulyp.core.EnterMethodCall;
+import com.ulyp.core.ExitMethodCall;
 
 public interface SearchResultListener {
 
     void onStart();
 
-    void onMatch(int recordingId, RecordedEnterMethodCall enterMethodCall);
+    void onMatch(int recordingId, EnterMethodCall enterMethodCall);
 
-    void onMatch(int recordingId, RecordedExitMethodCall exitMethodCall);
+    void onMatch(int recordingId, ExitMethodCall exitMethodCall);
 
     void onEnd();
 }

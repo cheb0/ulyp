@@ -49,18 +49,18 @@ public class SearchDataReaderJob implements RecordingDataReaderJob {
             return;
         }
 
-        AddressableItemIterator<RecordedMethodCall> it = recordedMethodCalls.iterator(types);
+        AddressableItemIterator<MethodCall> it = recordedMethodCalls.iterator(types);
         while (it.hasNext()) {
-            RecordedMethodCall methodCall = it.next();
+            MethodCall methodCall = it.next();
 
-            if (methodCall instanceof RecordedEnterMethodCall) {
-                RecordedEnterMethodCall enterMethodCall = (RecordedEnterMethodCall) methodCall;
+            if (methodCall instanceof EnterMethodCall) {
+                EnterMethodCall enterMethodCall = (EnterMethodCall) methodCall;
 
                 if (query.matches(enterMethodCall, types, methods)) {
                     resultListener.onMatch(recordedMethodCalls.getRecordingId(), enterMethodCall);
                 }
             } else {
-                RecordedExitMethodCall exitMethodCall = (RecordedExitMethodCall) methodCall;
+                ExitMethodCall exitMethodCall = (ExitMethodCall) methodCall;
 
                 if (query.matches(exitMethodCall, types, methods)) {
                     resultListener.onMatch(recordedMethodCalls.getRecordingId(), exitMethodCall);

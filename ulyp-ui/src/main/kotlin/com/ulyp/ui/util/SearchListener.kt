@@ -1,7 +1,7 @@
 package com.ulyp.ui.util
 
-import com.ulyp.core.RecordedEnterMethodCall
-import com.ulyp.core.RecordedExitMethodCall
+import com.ulyp.core.EnterMethodCall
+import com.ulyp.core.ExitMethodCall
 import com.ulyp.storage.search.SearchResultListener
 import com.ulyp.ui.elements.recording.tree.FileRecordingsTab
 import javafx.application.Platform
@@ -14,7 +14,7 @@ class SearchListener(private val fileRecordingsTab: FileRecordingsTab) : SearchR
         fileRecordingsTab.recordingList.clearHighlights();
     }
 
-    override fun onMatch(recordingId: Int, enterMethodCall: RecordedEnterMethodCall) {
+    override fun onMatch(recordingId: Int, enterMethodCall: EnterMethodCall) {
         if (map.add(recordingId)) {
             Platform.runLater {
                 fileRecordingsTab.recordingList.highlight(recordingId)
@@ -22,7 +22,7 @@ class SearchListener(private val fileRecordingsTab: FileRecordingsTab) : SearchR
         }
     }
 
-    override fun onMatch(recordingId: Int, exitMethodCall: RecordedExitMethodCall) {
+    override fun onMatch(recordingId: Int, exitMethodCall: ExitMethodCall) {
         if (map.add(recordingId)) {
             Platform.runLater {
                 fileRecordingsTab.recordingList.highlight(recordingId)

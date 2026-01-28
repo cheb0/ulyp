@@ -51,6 +51,7 @@ abstract class RenderedObject protected constructor() : TextFlow() {
                 is KtPairRecord -> RenderedKtPair(record, renderSettings)
                 is KtTripleRecord -> RenderedKtTriple(record, renderSettings)
                 is ThreadRecord -> RenderedThread(record, renderSettings)
+                is ByteBufferRecord -> RenderedByteBuffer(record, renderSettings)
                 else -> throw RuntimeException("Not supported for rendering: $record")
             }
             objectValue.children.forEach(Consumer { node: Node ->

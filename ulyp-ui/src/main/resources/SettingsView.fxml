@@ -93,7 +93,7 @@
                                         </HBox>
                                         <HBox prefHeight="20.0" prefWidth="200.0">
                                             <children>
-                                                <Label text="Recording tree appearance">
+                                                <Label text="Call tree appearance">
                                                     <HBox.margin>
                                                         <Insets left="20.0"/>
                                                     </HBox.margin>
@@ -213,7 +213,7 @@
                                         </HBox>
                                         <HBox prefHeight="20.0" prefWidth="200.0">
                                             <children>
-                                                <Label text="Recording tree">
+                                                <Label text="Call tree">
                                                     <HBox.margin>
                                                         <Insets left="20.0"/>
                                                     </HBox.margin>

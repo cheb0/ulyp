@@ -52,6 +52,7 @@ public enum ObjectRecorderRegistry {
     FILE_RECORDER(new FileRecorder((byte) 26), 90),
     PATH_RECORDER(new PathRecorder((byte) 27), 90),
     DATE_RECORDER(new DateRecorder((byte) 20), 90),
+    BYTE_BUFFER_RECORDER(new ByteBufferRecorder((byte) 31), 90),
     TO_STRING_RECORDER(new PrintingRecorder((byte) 91), 99),
     KT_PAIR_RECORDER(new KtPairRecorder((byte) 15), 200),
     KT_TRIPLE_RECORDER(new KtTripleRecorder((byte) 16), 200),

@@ -52,12 +52,12 @@ public class FileRecordingDataReader implements RecordingDataReader {
     }
 
     @Override
-    public RecordedEnterMethodCall readEnterMethodCall(long address, ReadableRepository<Integer, Type> typeRepository) {
+    public EnterMethodCall readEnterMethodCall(long address, ReadableRepository<Integer, Type> typeRepository) {
         return recordedMethodCallDataReader.readEnterMethodCall(address, typeRepository);
     }
 
     @Override
-    public RecordedExitMethodCall readExitMethodCall(long address, ReadableRepository<Integer, Type> typeRepository) {
+    public ExitMethodCall readExitMethodCall(long address, ReadableRepository<Integer, Type> typeRepository) {
         return recordedMethodCallDataReader.readExitMethodCall(address, typeRepository);
     }
 

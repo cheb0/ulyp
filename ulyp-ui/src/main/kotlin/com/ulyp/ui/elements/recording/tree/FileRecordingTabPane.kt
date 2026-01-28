@@ -22,8 +22,8 @@ class FileRecordingTabPane : TabPane() {
     @Autowired
     private lateinit var settings: Settings
 
-    private var lastSelectedOnShowTypes: RecordedCallTreeItem? = null
-    private var lastSelectedOnShowTimestamps: RecordedCallTreeItem? = null
+    private var lastSelectedOnShowTypes: CallTreeItem? = null
+    private var lastSelectedOnShowTimestamps: CallTreeItem? = null
 
     fun clear() {
         for (tab in tabs) {

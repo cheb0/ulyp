@@ -101,8 +101,8 @@ class FilterStorageReadWriteTest {
         Method methodDeserialized = job.getMethods().get(method.getId());
         assertEquals(methodDeserialized, method);
 
-        Map<Integer, List<RecordedMethodCall>> recordedCalls = job.getRecordedCalls();
-        List<RecordedMethodCall> calls = recordedCalls.get(1);
+        Map<Integer, List<MethodCall>> recordedCalls = job.getRecordedCalls();
+        List<MethodCall> calls = recordedCalls.get(1);
 
         assertEquals(6, calls.size());
     }

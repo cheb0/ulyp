@@ -26,7 +26,7 @@ class RecordingTab(
 
     val recordingId = recording.id
     private var root: CallRecord? = null
-    private var treeView: RecordingTreeView? = null
+    private var treeView: CallTreeView? = null
 
     @Autowired
     private lateinit var sourceCodeView: SourceCodeView
@@ -43,7 +43,7 @@ class RecordingTab(
             return
         }
 
-        treeView = RecordingTreeView(RecordedCallTreeItem(recording, root!!.id, renderSettings), settings, processMetadata, sourceCodeView)
+        treeView = CallTreeView(CallTreeItem(recording, root!!.id, renderSettings), settings, processMetadata, sourceCodeView)
 
         treeView!!.prefHeightProperty().bind(parent.heightProperty())
         treeView!!.prefWidthProperty().bind(parent.widthProperty())
@@ -53,8 +53,8 @@ class RecordingTab(
         initialized = true
     }
 
-    fun getSelected(): RecordedCallTreeItem {
-        return treeView!!.selectionModel.selectedItem as RecordedCallTreeItem
+    fun getSelected(): CallTreeItem {
+        return treeView!!.selectionModel.selectedItem as CallTreeItem
     }
 
     fun dispose() {
@@ -63,7 +63,7 @@ class RecordingTab(
     @Synchronized
     fun refreshTreeView() {
         init()
-        val root = treeView!!.root as RecordedCallTreeItem
+        val root = treeView!!.root as CallTreeItem
         root.refresh()
     }
 

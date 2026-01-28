@@ -1,14 +1,14 @@
 package com.ulyp.core.mem;
 
-import com.ulyp.core.RecordedMethodCall;
+import com.ulyp.core.MethodCall;
 import com.ulyp.core.TypeResolver;
 import com.ulyp.core.bytes.PagedMemBytesOut;
-import com.ulyp.core.serializers.RecordedEnterMethodCallSerializer;
-import com.ulyp.core.serializers.RecordedExitMethodCallSerializer;
+import com.ulyp.core.serializers.EnterMethodCallSerializer;
+import com.ulyp.core.serializers.ExitMethodCallSerializer;
 import org.jetbrains.annotations.TestOnly;
 
 /**
- * A list of serialized {@link RecordedMethodCall} instances
+ * A list of serialized {@link MethodCall} instances
  */
 public class SerializedRecordedMethodCallList {
 
@@ -44,7 +44,7 @@ public class SerializedRecordedMethodCallList {
 
     private void addExitMethodCall(int callId, TypeResolver typeResolver, boolean thrown, Object returnValue, long nanoTime) {
         OutputBytesList.Writer writer = out.writer();
-        RecordedExitMethodCallSerializer.instance.serializeExitMethodCall(writer, callId, typeResolver, thrown, returnValue, nanoTime);
+        ExitMethodCallSerializer.instance.serializeExitMethodCall(writer, callId, typeResolver, thrown, returnValue, nanoTime);
         writer.commit();
     }
 
@@ -54,7 +54,7 @@ public class SerializedRecordedMethodCallList {
 
     public void addEnterMethodCall(int methodId, TypeResolver typeResolver, Object callee, Object[] args, long nanoTime) {
         OutputBytesList.Writer writer = out.writer();
-        RecordedEnterMethodCallSerializer.instance.serializeEnterMethodCall(writer, methodId, typeResolver, callee, args, nanoTime);
+        EnterMethodCallSerializer.instance.serializeEnterMethodCall(writer, methodId, typeResolver, callee, args, nanoTime);
         writer.commit();
     }
 

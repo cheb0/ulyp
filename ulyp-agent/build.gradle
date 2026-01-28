@@ -5,8 +5,7 @@ plugins {
 }
 
 dependencies {
-    implementation project(':ulyp-common')
-    implementation project(':ulyp-agent-core')
+    shadow project(':ulyp-common')
 
     /*
      We are embedding ulyp-agent-core jar file inside ulyp-agent jar file. ulyp-agent-core jar is copied to temp folder
@@ -72,14 +71,6 @@ compileJava {
 }
 
 shadowJar {
-
-    archiveClassifier.set('all')
-    manifest {
-        attributes 'Premain-Class': 'com.ulyp.agent.UlypAgent',
-                'Can-Redefine-Classes': 'true',
-                'Can-Retransform-Classes': 'true'
-    }
-
     dependsOn(':ulyp-agent-core:copyShadowJar')
 
     relocate 'org.agrona', 'shadowed.org.agrona'

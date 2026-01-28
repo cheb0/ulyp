@@ -17,7 +17,7 @@ public class StubRecordingDataReaderJob implements RecordingDataReaderJob {
     private ProcessMetadata processMetadata;
     private final Map<Integer, RecordingMetadata> recordingMetadatas = new HashMap<>();
     private final Map<Integer, Method> methods = new HashMap<>();
-    private final Map<Integer, List<RecordedMethodCall>> recordedCalls = new HashMap<>();
+    private final Map<Integer, List<MethodCall>> recordedCalls = new HashMap<>();
     private final InMemoryRepository<Integer, Type> types = new InMemoryRepository<>();
 
     @Override
@@ -43,8 +43,8 @@ public class StubRecordingDataReaderJob implements RecordingDataReaderJob {
     @Override
     public void onRecordedCalls(long address, RecordedMethodCalls recordedMethodCalls) {
         int recordingId = recordedMethodCalls.getRecordingId();
-        List<RecordedMethodCall> calls = recordedCalls.computeIfAbsent(recordingId, recId -> new ArrayList<>());
-        AddressableItemIterator<RecordedMethodCall> iterator = recordedMethodCalls.iterator(types);
+        List<MethodCall> calls = recordedCalls.computeIfAbsent(recordingId, recId -> new ArrayList<>());
+        AddressableItemIterator<MethodCall> iterator = recordedMethodCalls.iterator(types);
         while (iterator.hasNext()) {
             calls.add(iterator.next());
         }

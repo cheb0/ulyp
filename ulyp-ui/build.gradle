@@ -13,12 +13,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.lombok' version '1.6.21'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.21'
     id 'io.freefair.lombok' version '8.12.1'
-    id 'org.openjfx.javafxplugin' version '0.1.0'
-}
-
-javafx {
-    version = "21.0.3"
-    modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing']
+    id 'org.openjfx.javafxplugin' version '0.0.14' apply(false)
 }
 
 def javaVersion = JavaVersion.current()
@@ -49,8 +44,6 @@ dependencies {
 
     implementation group: 'org.rocksdb', name: 'rocksdbjni', version: '10.2.1'
     implementation group: 'org.agrona', name: 'agrona', version: '1.4.0'
-    implementation group: 'it.unimi.dsi', name: 'fastutil', version: '8.5.12'
-    runtimeOnly 'org.apache.logging.log4j:log4j-slf4j2-impl:2.24.2'
 
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.28'
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.28'
@@ -66,7 +59,6 @@ dependencies {
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.3'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-
 }
 
 mainClassName = 'com.ulyp.ui.UIStarter'

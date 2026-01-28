@@ -37,12 +37,12 @@ public class RecordingState {
     }
 
     synchronized void onNewRecordedCalls(long fileAddr, RecordedMethodCalls recordedMethodCalls) {
-        AddressableItemIterator<RecordedMethodCall> iterator = recordedMethodCalls.iterator(typeRepository);
+        AddressableItemIterator<MethodCall> iterator = recordedMethodCalls.iterator(typeRepository);
         while (iterator.hasNext()) {
-            RecordedMethodCall value = iterator.next();
+            MethodCall value = iterator.next();
             long relativeAddress = iterator.address();
 
-            if (value instanceof RecordedEnterMethodCall) {
+            if (value instanceof EnterMethodCall) {
                 long uniqueId = BitUtil.longFromInts(metadata.getId(), nextCallId++);
                 if (rootUniqueId < 0) {
                     rootUniqueId = uniqueId;
@@ -54,7 +54,7 @@ public class RecordingState {
                 memCallStack.push(callState);
             } else {
 
-                RecordedExitMethodCall exitMethodCall = (RecordedExitMethodCall) value;
+                ExitMethodCall exitMethodCall = (ExitMethodCall) value;
                 long uniqueId = BitUtil.longFromInts(metadata.getId(), (int) exitMethodCall.getCallId());
                 CallRecordIndexState lastCallState = memCallStack.peek();
                 if (lastCallState == null || lastCallState.getId() != uniqueId) {
@@ -113,7 +113,7 @@ public class RecordingState {
         }
 
         CallRecordIndexState callState = getState(callId);
-        RecordedEnterMethodCall enterMethodCall = recordingDataReader.readEnterMethodCall(callState.getEnterMethodCallAddress(), typeRepository);
+        EnterMethodCall enterMethodCall = recordingDataReader.readEnterMethodCall(callState.getEnterMethodCallAddress(), typeRepository);
 
         CallRecord.CallRecordBuilder builder = CallRecord.builder()
                 .callId(callState.getId())
@@ -125,7 +125,7 @@ public class RecordingState {
                 .recordingState(this);
 
         if (callState.getExitMethodCallAddr() > 0) {
-            RecordedExitMethodCall exitMethodCall = recordingDataReader.readExitMethodCall(callState.getExitMethodCallAddr(), typeRepository);
+            ExitMethodCall exitMethodCall = recordingDataReader.readExitMethodCall(callState.getExitMethodCallAddr(), typeRepository);
 
             if (exitMethodCall.getNanoTime() > 0) {
                 long nanosDuration = exitMethodCall.getNanoTime() - enterMethodCall.getNanoTime();

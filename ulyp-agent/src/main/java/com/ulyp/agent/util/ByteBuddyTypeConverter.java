@@ -1,5 +1,6 @@
 package com.ulyp.agent.util;
 
+import com.ulyp.core.Converter;
 import com.ulyp.core.Type;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.description.type.TypeDefinition;
@@ -9,11 +10,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
+/**
+ * Converts byte buddy type description to internal domain class {@link Type}
+ */
 @Slf4j
-public class ByteBuddyTypeConverter {
-
-    public static final ByteBuddyTypeConverter INSTANCE = new ByteBuddyTypeConverter();
+public class ByteBuddyTypeConverter implements Converter<TypeDescription.Generic, Type> {
 
     private static final AtomicInteger typeIdGenerator = new AtomicInteger(0);
 

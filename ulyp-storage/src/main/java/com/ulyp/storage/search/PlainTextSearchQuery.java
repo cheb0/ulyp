@@ -1,8 +1,8 @@
 package com.ulyp.storage.search;
 
 import com.ulyp.core.Method;
-import com.ulyp.core.RecordedEnterMethodCall;
-import com.ulyp.core.RecordedExitMethodCall;
+import com.ulyp.core.EnterMethodCall;
+import com.ulyp.core.ExitMethodCall;
 import com.ulyp.core.Type;
 import com.ulyp.core.repository.ReadableRepository;
 import com.ulyp.core.util.StringUtils;
@@ -17,7 +17,7 @@ public class PlainTextSearchQuery implements SearchQuery {
 
     @Override
     public boolean matches(
-            RecordedEnterMethodCall methodCall,
+            EnterMethodCall methodCall,
             ReadableRepository<Integer, Type> types,
             ReadableRepository<Integer, Method> methods) {
         return StringUtils.containsIgnoreCase(methodCall.getCallee().toString(), textToSearch)
@@ -27,7 +27,7 @@ public class PlainTextSearchQuery implements SearchQuery {
 
     @Override
     public boolean matches(
-            RecordedExitMethodCall methodCall,
+            ExitMethodCall methodCall,
             ReadableRepository<Integer, Type> typeResolver,
             ReadableRepository<Integer, Method> methods) {
         return StringUtils.containsIgnoreCase(methodCall.getReturnValue().toString(), textToSearch);

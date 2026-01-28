@@ -7,7 +7,7 @@ import java.time.Duration;
 
 /**
 * Recording class represents a particular recorded method call along with all its child subcalls. There are
-* usually many recordings present.
+* usually many recordings present in the file.
 */
 public class Recording {
 

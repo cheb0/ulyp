@@ -17,8 +17,8 @@ class RenderedMethod(record: MethodRecord, renderSettings: RenderSettings) : Ren
         children.addAll(
             listOf(
                 TrimmedTextView(of(record.declaringType.name, Style.CALL_TREE_CLASS, Style.CALL_TREE_BOLD)),
-                of("#", Style.CALL_TREE_CLASS, Style.SMALLER_TEXT, Style.CALL_TREE_BOLD),
-                of(record.name, Style.CALL_TREE_CLASS, Style.SMALLER_TEXT)
+                of("#", Style.CALL_TREE_CLASS, Style.CALL_TREE_BOLD),
+                of(record.name, Style.CALL_TREE_CLASS)
             )
         )
     }
