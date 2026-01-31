@@ -1,0 +1,45 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  jdk-8-build:
+    runs-on: ubuntu-latest
+    name: JDK 8 Build
+    container:
+      image: cimg/openjdk:8.0.442
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run gradle build
+        run: |
+          chmod +x gradlew
+          ./gradlew ulyp-common:check ulyp-storage:check ulyp-agent-core:check ulyp-agent-tests:check -i
+
+  jdk-17-build:
+    runs-on: ubuntu-latest
+    name: JDK 17 Build
+    container:
+      image: cimg/openjdk:17.0.14
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run gradle build
+        run: |
+          chmod +x gradlew
+          ./gradlew ulyp-common:check ulyp-storage:check ulyp-agent-core:check ulyp-agent-tests:check ulyp-ui:build -i
+
