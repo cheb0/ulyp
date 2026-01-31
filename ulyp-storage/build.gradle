@@ -23,6 +23,7 @@ dependencies {
     implementation group: 'org.agrona', name: 'agrona', version: '1.4.0'
     implementation group: 'org.jetbrains', name: 'annotations', version: '18.0.0'
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.2'
+    implementation group: 'it.unimi.dsi', name: 'fastutil', version: '8.5.12'
 
     compileOnly group: 'org.rocksdb', name: 'rocksdbjni', version: '9.7.3'
     testImplementation group: 'org.rocksdb', name: 'rocksdbjni', version: '9.7.3'
