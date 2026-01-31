@@ -38,8 +38,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run gradle build
+      - name: Build UI
+        run: |
+          chmod +x gradlew
+          ./gradlew ulyp-ui:fatJar
+
+      - name: Run tests
         run: |
           chmod +x gradlew
           ./gradlew ulyp-common:check ulyp-storage:check ulyp-agent-core:check ulyp-agent-tests:check ulyp-ui:build -i
-
