@@ -5,8 +5,8 @@
   <a href="https://github.com/cheb0/ulyp/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/price-FREE-0098f7.svg" alt="Price">
   </a>
-  <a href="https://circleci.com/gh/cheb0/ulyp/tree/master">
-    <img src="https://circleci.com/gh/cheb0/ulyp/tree/master.svg?style=svg" alt="Build Status">
+  <a href="https://github.com/cheb0/ulyp/actions/workflows/build.yml">
+    <img src="https://github.com/cheb0/ulyp/actions/workflows/build.yml/badge.svg" alt="Build Status">
   </a>
   <a href="https://sonarcloud.io/dashboard?id=0xaa4eb_ulyp">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=0xaa4eb_ulyp&metric=alert_status" alt="Quality Gate Status">
