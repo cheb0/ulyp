@@ -11,10 +11,10 @@ import com.ulyp.ui.elements.controls.ErrorModalView
 import com.ulyp.ui.elements.misc.ExceptionAsTextView
 import com.ulyp.ui.elements.recording.tree.FileRecordingTabPane
 import com.ulyp.ui.elements.recording.tree.FileRecordingsTabName
+import com.ulyp.ui.export.RecordingMultipleJsonExporter
 import com.ulyp.ui.reader.ReaderRegistry
 import com.ulyp.ui.settings.Settings
 import com.ulyp.ui.util.FxThreadExecutor
-import com.ulyp.ui.export.RecordingJsonExporter
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationContext
 import java.io.File
 import java.net.URL
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
 import kotlin.system.exitProcess
 
@@ -133,64 +134,6 @@ class PrimaryView(
         popup.show()
     }
 
-    /**
-     * Exports currently recordings to JSON files to same directory where recording file resides
-     */
-    fun exportToJson() {
-        val file: File = fileChooser.get() ?: return
-        val callRecordTree: CallRecordTree = readerRegistry.newCallRecordTree(file) ?: return
-
-        val loadingProgressBar = ProgressBar()
-        loadingProgressBar.prefWidth = 200.0
-        fileTabPaneAnchorPane.children.add(loadingProgressBar)
-
-        val recordings = mutableMapOf<Int, Recording>()
-
-        // Collect all recordings from the file (latest states)
-        callRecordTree.subscribe(
-            object : RecordingListener {
-                var prevProgress = 0.0
-
-                override fun onRecordingUpdated(recording: Recording) {
-                    recordings[recording.id] = recording
-                }
-
-                override fun onProgressUpdated(progress: Double) {
-                    // update every 5 percent at most
-                    if (progress > prevProgress + 0.05) {
-                        Platform.runLater {
-                            loadingProgressBar.progress = progress
-                        }
-                        prevProgress = progress
-                    }
-                }
-            }
-        )
-
-        callRecordTree.completeFuture.exceptionally {
-            FxThreadExecutor.execute {
-                val errorPopup = applicationContext.getBean(
-                    ErrorModalView::class.java,
-                    applicationContext.getBean(SceneRegistry::class.java),
-                    "Stopped reading recording file $file with error: " + it.message,
-                    ExceptionAsTextView(it)
-                )
-                errorPopup.show()
-            }
-            null
-        }.thenAccept {
-            FxThreadExecutor.execute {
-                loadingProgressBar.visibleProperty().set(false)
-                fileTabPaneAnchorPane.children.remove(loadingProgressBar)
-            }
-            recordings.forEach { _, recording ->
-                val outDir = file.parentFile ?: File(".")
-                val outFile = File(outDir, "${file.name}-recording-${recording.id}.json")
-                RecordingJsonExporter.export(recording, outFile)
-            }
-        }
-    }
-
     fun openRecordingFile() {
         val file: File = fileChooser.get() ?: return
         val callRecordTree: CallRecordTree = readerRegistry.newCallRecordTree(file) ?: return
@@ -256,4 +199,100 @@ class PrimaryView(
             }
         }
     }
+
+    // Exports recordings from a selected file to JSON format
+    fun exportToJson() {
+        val file: File = fileChooser.get() ?: return
+
+        // Create a new CallRecordTree to read the file in the background (same as openRecordingFile)
+        val callRecordTree: CallRecordTree = readerRegistry.newCallRecordTree(file) ?: return
+
+        val rocksdbAvailable = RocksdbChecker.checkRocksdbAvailable()
+        if (!rocksdbAvailable.value()) {
+            val errorPopup = applicationContext.getBean(
+                ErrorModalView::class.java,
+                applicationContext.getBean(SceneRegistry::class.java),
+                "Rocksdb is not available on your platform, in-memory index will be used. Please note this may cause OOM on large recordings",
+                ExceptionAsTextView(rocksdbAvailable.err!!)
+            )
+            errorPopup.show()
+        }
+
+        val loadingProgressBar = ProgressBar().apply {
+            prefWidth = 200.0
+        }
+        fileTabPaneAnchorPane.children.add(loadingProgressBar)
+
+        // onRecordingUpdated can be called multiple times per recording; capture the latest snapshot per id
+        val recordingsById = ConcurrentHashMap<Int, Recording>()
+
+        callRecordTree.subscribe(
+            object : RecordingListener {
+                var prevProgress = 0.0
+
+                override fun onRecordingUpdated(recording: Recording) {
+                    recordingsById[recording.id] = recording
+                }
+
+                override fun onProgressUpdated(progress: Double) {
+                    // update every 5 percent at most
+                    if (progress > prevProgress + 0.05) {
+                        Platform.runLater {
+                            loadingProgressBar.progress = progress
+                        }
+                        prevProgress = progress
+                    }
+                }
+            }
+        )
+
+        callRecordTree.completeFuture.whenComplete { _, err ->
+            try {
+                if (err != null) {
+                    FxThreadExecutor.execute {
+                        val errorPopup = applicationContext.getBean(
+                            ErrorModalView::class.java,
+                            applicationContext.getBean(SceneRegistry::class.java),
+                            "Stopped reading recording file $file with error: " + err.message,
+                            ExceptionAsTextView(err)
+                        )
+                        errorPopup.show()
+                    }
+                    return@whenComplete
+                }
+
+                val outDir = file.parentFile ?: File(".")
+                recordingsById.values
+                    .sortedBy { it.id }
+                    .forEach { recording ->
+                        val outFile = File(outDir, "recording-${recording.id}.json")
+                        println("Exporting recording ${recording.id} to JSON file: ${outFile.absolutePath}")
+                        RecordingMultipleJsonExporter.export(recording, outFile)
+                    }
+
+            } catch (e: Exception) {
+                FxThreadExecutor.execute {
+                    val errorPopup = applicationContext.getBean(
+                        ErrorModalView::class.java,
+                        applicationContext.getBean(SceneRegistry::class.java),
+                        "Failed to export $file to JSON: " + e.message,
+                        ExceptionAsTextView(e)
+                    )
+                    errorPopup.show()
+                }
+            } finally {
+                FxThreadExecutor.execute {
+                    loadingProgressBar.visibleProperty().set(false)
+                    fileTabPaneAnchorPane.children.remove(loadingProgressBar)
+                }
+                try {
+                    readerRegistry.dispose(callRecordTree)
+                    callRecordTree.close()
+                } catch (_: Exception) {
+                    // best effort cleanup
+                }
+            }
+        }
+    }
+
 }
