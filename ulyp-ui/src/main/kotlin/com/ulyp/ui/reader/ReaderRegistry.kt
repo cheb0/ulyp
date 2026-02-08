@@ -16,6 +16,11 @@ class ReaderRegistry(private val filterRegistry: FilterRegistry) {
 
     private val readersMap = ConcurrentHashMap<Path, RecordingDataReader>()
 
+    /* ReaderRegistry constructs:
+    * a low‑level file reader (RecordingDataReader) from the file
+    * an index (RocksDB if available, otherwise in‑memory),
+    * and a CallRecordTree that will parse the stream of bytes from the file, build a call tree, and publish incremental updates (progress + parsed “recordings”).
+    */
     @Synchronized
     fun newCallRecordTree(file: File): CallRecordTree? {
         val recordingDataReader = FileRecordingDataReaderBuilder(file).build()
